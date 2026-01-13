@@ -29,18 +29,26 @@ int main(int argc, char *argv[]) {
 
     const char* relName = relCatRecord[RELCAT_REL_NAME_INDEX].sVal;
     printf("Relation: %s\n", relName);
+    
+    int attrBlockNum = ATTRCAT_BLOCK; //from here 
 
-    for (int j=0;j<attrCatHeader.numEntries;j++) {
+    while (attrBlockNum != -1) {
+      RecBuffer attrCatBuffer(attrBlockNum);
+      HeadInfo attrCatHeader;
+      attrCatBuffer.getHeader(&attrCatHeader); // to here is part of ex1
 
-      Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
-      attrCatBuffer.getRecord(attrCatRecord, j);
+      for (int j=0;j<attrCatHeader.numEntries;j++) {
+        Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
+        attrCatBuffer.getRecord(attrCatRecord, j);
 
-      if (strcmp(attrCatRecord[ATTRCAT_REL_NAME_INDEX].sVal, relName) == 0) {
-        const char* attrType =(attrCatRecord[ATTRCAT_ATTR_TYPE_INDEX].nVal == NUMBER) ? "NUM" : "STR";
-        const char *attrName = attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal;
+        if (strcmp(attrCatRecord[ATTRCAT_REL_NAME_INDEX].sVal, relName) == 0) {
+          const char* attrType =(attrCatRecord[ATTRCAT_ATTR_TYPE_INDEX].nVal == NUMBER) ? "NUM" : "STR";
+          const char *attrName = attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal;
 
-        printf("  %s: %s\n",attrName,attrType);
+          printf("  %s: %s\n",attrName,attrType);
       }
+    }
+    attrBlockNum = attrCatHeader.rblock; //to move right *this is the exttra part
     }
     printf("\n");
   }
