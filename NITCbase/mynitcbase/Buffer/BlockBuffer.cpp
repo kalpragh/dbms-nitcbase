@@ -47,8 +47,7 @@ int RecBuffer::getRecord(union Attribute *rec, int slotNum) {
   int recordSize  = attrCount * ATTR_SIZE;
   int slotMapSize = slotCount;
 
-  unsigned char *slotPointer =
-      bufferPtr + HEADER_SIZE + slotMapSize + (recordSize * slotNum);
+  unsigned char *slotPointer =bufferPtr + HEADER_SIZE + slotMapSize + (recordSize * slotNum);
 
   memcpy(rec, slotPointer, recordSize);
   return SUCCESS;
