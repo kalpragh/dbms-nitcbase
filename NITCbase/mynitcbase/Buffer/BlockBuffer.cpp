@@ -102,3 +102,25 @@ int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **buffPtr) {
   *buffPtr = StaticBuffer::blocks[bufferNum];
   return SUCCESS;
 }
+/* used to get the slotmap from a record block
+NOTE: this function expects the caller to allocate memory for `*slotMap`
+*/ 
+//stage 4
+int RecBuffer::getSlotMap(unsigned char *slotMap) {
+  unsigned char *bufferPtr;
+  int ret = loadBlockAndGetBufferPtr(&bufferPtr);
+  if (ret != SUCCESS) {
+    return ret;
+  }
+  struct HeadInfo head;
+  ret=getHeader(&head);
+  if(ret!=SUCCESS){
+    return ret;
+  }
+  int slotCount = head.numSlots;
+  unsigned char *slotMapInBuffer = bufferPtr + HEADER_SIZE;
+
+  memcpy(slotMap,slotMapInBuffer,slotCount);
+
+  return SUCCESS;
+}
