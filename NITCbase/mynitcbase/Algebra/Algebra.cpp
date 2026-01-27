@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
+bool isNumber(char *str);
 /* used to select all the records that satisfy a condition.
 the arguments of the function are
 - srcRel - the source relation we want to select from
