@@ -1,6 +1,12 @@
 #include "OpenRelTable.h"
 #include <cstdlib>   // malloc, free
 #include <cstring>
+//stage 4 ex q
+#define STUDENTS_RELID 2
+#define RELCAT_SLOTNUM_FOR_STUDENTS 2
+
+#define ATTRCAT_SLOTNUM_START_FOR_STUDENTS 12
+#define STUDENTS_NO_ATTRS 4
 
 // Constructor: load RELCAT + ATTRCAT entries into caches
 OpenRelTable::OpenRelTable() {
@@ -36,9 +42,34 @@ OpenRelTable::OpenRelTable() {
   relCacheEntry1.recId.block = RELCAT_BLOCK;
   relCacheEntry1.recId.slot  = RELCAT_SLOTNUM_FOR_ATTRCAT;
 
-  RelCacheTable::relCache[ATTRCAT_RELID] =
-      (RelCacheEntry*)malloc(sizeof(RelCacheEntry));
+  RelCacheTable::relCache[ATTRCAT_RELID] =(RelCacheEntry*)malloc(sizeof(RelCacheEntry));
   *(RelCacheTable::relCache[ATTRCAT_RELID]) = relCacheEntry1;
+
+  // ---------------------------------
+// STUDENTS relation (relId = 2)
+// ---------------------------------
+//stage 4 ex
+Attribute studentsRelRecord[RELCAT_NO_ATTRS];
+relCatBlock.getRecord(studentsRelRecord, RELCAT_SLOTNUM_FOR_STUDENTS);
+
+RelCacheEntry relCacheEntry2;
+RelCacheTable::recordToRelCatEntry(
+    studentsRelRecord,
+    &relCacheEntry2.relCatEntry
+);
+
+relCacheEntry2.recId.block = RELCAT_BLOCK;
+relCacheEntry2.recId.slot  = RELCAT_SLOTNUM_FOR_STUDENTS;
+
+// VERY IMPORTANT for linearSearch
+relCacheEntry2.searchIndex.block = -1;
+relCacheEntry2.searchIndex.slot  = -1;
+
+RelCacheTable::relCache[STUDENTS_RELID] =
+    (RelCacheEntry*)malloc(sizeof(RelCacheEntry));
+
+*(RelCacheTable::relCache[STUDENTS_RELID]) = relCacheEntry2;
+//till here
 
   /************ Setting up Attribute cache entries ************/
   RecBuffer attrCatBlock(ATTRCAT_BLOCK);
@@ -96,6 +127,30 @@ OpenRelTable::OpenRelTable() {
   }
 
   AttrCacheTable::attrCache[ATTRCAT_RELID] = headAttr;
+  //stage 4 ex q frm here
+    /**** setting up Students relation in the Attribute Cache Table ****/
+  AttrCacheEntry* headStud = nullptr;
+  AttrCacheEntry* tailStud = nullptr;
+
+  for (int slot = ATTRCAT_SLOTNUM_START_FOR_STUDENTS;
+       slot < ATTRCAT_SLOTNUM_START_FOR_STUDENTS + STUDENTS_NO_ATTRS;
+       slot++) {
+
+    attrCatBlock.getRecord(attrCatRecord, slot);
+
+    AttrCacheEntry* node = (AttrCacheEntry*)malloc(sizeof(AttrCacheEntry));
+    AttrCacheTable::recordToAttrCatEntry(attrCatRecord, &node->attrCatEntry);
+
+    node->recId.block = ATTRCAT_BLOCK;
+    node->recId.slot  = slot;
+    node->next = nullptr;
+
+    if (headStud == nullptr) headStud = tailStud = node;
+    else { tailStud->next = node; tailStud = node; }
+  }
+
+  AttrCacheTable::attrCache[STUDENTS_RELID] = headStud;
+  //to here
 }
 
 OpenRelTable::~OpenRelTable() {
